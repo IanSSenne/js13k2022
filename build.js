@@ -1,17 +1,18 @@
-const isDev = process.argv.includes("dev");
+require("ts-node/register");
+const _isDev = process.argv.includes("dev");
 const esbuild = require("esbuild");
 const path = require("path");
 const fs = require("fs-extra");
 const minifyHTML = require("html-minify").minify;
-
-const build = async () => {
-  const output = path.join(__dirname, "dist", "bundle.js");
+const pngLoader = require("./plugins/png");
+const cleanWorkspace = require("./plugins/clean");
+const createHtml = require("./plugins/createHtml");
+const logger = require("./plugins/logger");
+const archiver = require("./plugins/prodArchiver");
+const build = async (isDev, shouldWatch, outputTarget) => {
+  const output = path.join(__dirname, outputTarget, "bundle.js");
   const input = path.join(__dirname, "src", "main.ts");
-  try {
-    await fs.promises.rm(path.join(__dirname, "dist"), { recursive: true });
-  } catch (e) {}
-  await fs.promises.mkdir(path.join(__dirname, "dist"));
-  const result = await esbuild.build({
+  esbuild.build({
     entryPoints: [input],
     outfile: output,
     minify: !isDev,
@@ -19,25 +20,29 @@ const build = async () => {
     bundle: true,
     platform: "browser",
     format: "esm",
-    sourcemap: isDev ? "external" : false,
-    plugins: [],
+    sourcemap: isDev ? "inline" : false,
+    plugins: [
+      pngLoader.plugin(isDev, outputTarget),
+      cleanWorkspace.plugin(isDev, outputTarget),
+      createHtml.plugin(isDev, outputTarget),
+      logger.plugin(isDev, outputTarget),
+      archiver.plugin(isDev, outputTarget),
+    ],
+    watch: shouldWatch,
   });
-  const html = await fs.readFile(
-    path.join(__dirname, "src", "index.html"),
-    "utf8"
-  );
-  await fs.writeFile(
-    path.join(__dirname, "dist", "index.html"),
-    minifyHTML(html).replace(
-      /<!--SCRIPTS-->/g,
-      `<script type="module">${fs.readFileSync(path.join(__dirname, "dist", "bundle.js"), "utf8")}</script>`
-    )
-  );
-  console.log(result);
-  if (result.errors.length === 0) {
-    console.log("Build success");
-  } else {
-    console.log("Build error");
-  }
 };
-build();
+if (_isDev) build(true, true, "dist/dev");
+build(false, _isDev, "dist/prod");
+if (_isDev) {
+  const express = require("express");
+  const devApp = express();
+  devApp.use(express.static(path.join(__dirname, "dist/dev")));
+  devApp.listen(3000, () => {
+    console.log("Dev App Server started on port 3000");
+  });
+  const prodApp = express();
+  prodApp.use(express.static(path.join(__dirname, "dist/prod")));
+  prodApp.listen(3001, () => {
+    console.log("Prod App Server started on port 3001");
+  });
+}
