@@ -9,9 +9,14 @@ const cleanWorkspace = require("./plugins/clean");
 const createHtml = require("./plugins/createHtml");
 const logger = require("./plugins/logger");
 const archiver = require("./plugins/prodArchiver");
+const assetId = require("./plugins/assetId");
 const build = async (isDev, shouldWatch, outputTarget) => {
   const output = path.join(__dirname, outputTarget, "bundle.js");
   const input = path.join(__dirname, "src", "main.ts");
+  const assetIdInstance = assetId.plugin(isDev, outputTarget);
+  // extra properties are not allowed on esbuild plugins.
+  const assetInstanceId = assetIdInstance.instanceId;
+  delete assetIdInstance.instanceId;
   esbuild.build({
     entryPoints: [input],
     outfile: output,
@@ -22,11 +27,12 @@ const build = async (isDev, shouldWatch, outputTarget) => {
     format: "esm",
     sourcemap: isDev ? "inline" : false,
     plugins: [
-      pngLoader.plugin(isDev, outputTarget),
+      pngLoader.plugin(isDev, outputTarget, assetInstanceId),
       cleanWorkspace.plugin(isDev, outputTarget),
       createHtml.plugin(isDev, outputTarget),
       logger.plugin(isDev, outputTarget),
       archiver.plugin(isDev, outputTarget),
+      assetIdInstance,
     ],
     watch: shouldWatch,
   });

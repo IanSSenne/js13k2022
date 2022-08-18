@@ -1,3 +1,5 @@
-console.log("Hello World");
 import testImage from "./assets/test.png";
-console.log(testImage);
+const x = new Image();
+x.src = testImage;
+document.body.appendChild(x);
+console.log(x);

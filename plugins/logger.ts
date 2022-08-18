@@ -17,5 +17,9 @@ export const plugin: (
       startTime = performance.now();
       log("Build started");
     });
+    build.onEnd(() => {
+      const endTime = performance.now();
+      log("Build finished in " + (endTime - startTime).toFixed(3) + "ms");
+    });
   },
 });

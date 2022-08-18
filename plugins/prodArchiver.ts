@@ -5,16 +5,20 @@ import { resolve } from "path";
 function createFileTreeFromDirectory(base: string, path: string): any {
   const files = fs.readdirSync(path);
   const fileTree: any = {};
+  let size = 0;
   for (const file of files) {
     const filePath = resolve(path, file);
     const stats = fs.statSync(filePath);
     if (stats.isDirectory()) {
-      fileTree[file] = createFileTreeFromDirectory(base, filePath);
+      const [s, f] = createFileTreeFromDirectory(base, filePath);
+      size += s;
+      fileTree[file] = f;
     } else {
+      size += stats.size;
       fileTree[file] = fs.readFileSync(filePath);
     }
   }
-  return fileTree;
+  return [size, fileTree];
 }
 function byteLengthToFileSize(size: number) {
   const units = ["B", "KB", "MB", "GB", "TB"];
@@ -36,7 +40,7 @@ export const plugin: (
   setup(build) {
     if (!isDev) {
       build.onEnd(() => {
-        const tree = createFileTreeFromDirectory(
+        const [size, tree] = createFileTreeFromDirectory(
           process.cwd(),
           resolve(process.cwd(), outputTarget)
         );
@@ -55,7 +59,12 @@ export const plugin: (
             );
             const readableSize = byteLengthToFileSize(data.length);
             console.log(
-              `[ZIP] Archived ${readableSize}\n[ZIP] usage: ${(
+              `[ZIP] Archived ${byteLengthToFileSize(
+                size
+              )} -> ${readableSize} (${(
+                100 -
+                (data.length / size) * 100
+              ).toFixed(2)}% saved) \n[ZIP] usage: ${(
                 data.length / 133.12
               ).toFixed(2)}% (${formatNumber(data.length)}/${formatNumber(
                 13312

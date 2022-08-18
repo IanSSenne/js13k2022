@@ -1,3 +1,3 @@
 // MANAGED_DTS
-declare const _default:"/1.png";
+declare const _default:"/0";
 export default _default;
