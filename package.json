@@ -5,6 +5,10 @@
   "repository": "https://github.com/IanSSenne/js13k2022.git",
   "author": "IanSSenne <48780301+IanSSenne@users.noreply.github.com>",
   "license": "MIT",
+  "scripts": {
+    "dev": "node build.js dev",
+    "build": "node build.js"
+  },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
     "esbuild": "^0.15.5",
