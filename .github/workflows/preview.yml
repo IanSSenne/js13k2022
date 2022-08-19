@@ -21,7 +21,7 @@ jobs:
             - name: run yarn
               run: yarn
             - name: build release
-              run: cat package.json
+              run: yarn build
             - name: create distribution
               run: yarn upload
               env:
