@@ -9,8 +9,8 @@ export const plugin: (
   name: "clean workspace",
   setup(build) {
     build.onStart(() => {
-      fs.rmSync(outputTarget, { recursive: true });
-      fs.mkdirSync(outputTarget, { recursive: true });
+      fs.rmSync(resolve(process.cwd(), outputTarget), { recursive: true });
+      fs.mkdirSync(resolve(process.cwd(), outputTarget), { recursive: true });
     });
-  },
+  }
 });

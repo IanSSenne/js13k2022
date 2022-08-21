@@ -17,6 +17,10 @@ const build = async (isDev, shouldWatch, outputTarget) => {
   // extra properties are not allowed on esbuild plugins.
   const assetInstanceId = assetIdInstance.instanceId;
   delete assetIdInstance.instanceId;
+  try {
+    fs.rmSync(path.resolve(__dirname, outputTarget), { recursive: true });
+  } catch (e) {}
+  fs.mkdirSync(path.resolve(__dirname, outputTarget), { recursive: true });
   esbuild.build({
     entryPoints: [input],
     outfile: output,
@@ -32,9 +36,9 @@ const build = async (isDev, shouldWatch, outputTarget) => {
       createHtml.plugin(isDev, outputTarget),
       logger.plugin(isDev, outputTarget),
       archiver.plugin(isDev, outputTarget),
-      assetIdInstance,
+      assetIdInstance
     ],
-    watch: shouldWatch,
+    watch: shouldWatch
   });
 };
 if (_isDev) build(true, true, "dist/dev");
