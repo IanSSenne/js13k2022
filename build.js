@@ -10,6 +10,8 @@ const createHtml = require("./plugins/createHtml");
 const logger = require("./plugins/logger");
 const archiver = require("./plugins/prodArchiver");
 const assetId = require("./plugins/assetId");
+const tiled = require("./plugins/tiled");
+
 const build = async (isDev, shouldWatch, outputTarget) => {
   const output = path.join(__dirname, outputTarget, "bundle.js");
   const input = path.join(__dirname, "src", "main.ts");
@@ -31,6 +33,7 @@ const build = async (isDev, shouldWatch, outputTarget) => {
     format: "esm",
     sourcemap: isDev ? "inline" : false,
     plugins: [
+      tiled.plugin(isDev, outputTarget, assetInstanceId),
       pngLoader.plugin(isDev, outputTarget, assetInstanceId),
       cleanWorkspace.plugin(isDev, outputTarget),
       createHtml.plugin(isDev, outputTarget),

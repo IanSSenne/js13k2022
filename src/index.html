@@ -5,4 +5,43 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JS13k2022 game title</title>
+    <canvas width="256" height="256">no game 4 u</canvas>
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        padding: 20px;
+        background: #000;
+    }
+ 
+    canvas {
+        display: block; 
+        box-shadow: 0 0 15px pink;
+        image-rendering: pixelated;
+        /* transform:translate(50vw,50vh) translate(-50%,-50%); */
+    }
+
+    @media (orientation: portrait) {
+        canvas {
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    @media (orientation: landscape) {
+        canvas {
+            width: auto;
+            height: 100%;
+        }
+    }
+    </style>
     <!--SCRIPTS-->
